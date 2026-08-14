@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>تعديل البيانات - SAIF PAY</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0b1736;
+            font-family: Tahoma, Arial, sans-serif;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 430px;
+            max-width: 92%;
+            margin: 35px auto;
+            background: #16254d;
+            padding: 25px;
+            border-radius: 22px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0 0 25px;
+            font-size: 28px;
+            color: #ffd6a5;
+        }
+
+        .field {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 15px;
+            color: #ffffff;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 11px;
+            font-size: 16px;
+            background: #ffffff;
+            color: #222;
+            outline: none;
+        }
+
+        input:focus {
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.25);
+        }
+
+        input[type="file"] {
+            background: white;
+            padding: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 11px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .save {
+            background: #2ecc71;
+        }
+
+        .save:hover {
+            background: #27ae60;
+        }
+
+        .back {
+            background: #3498db;
+        }
+
+        .back:hover {
+            background: #2980b9;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            min-height: 24px;
+            font-size: 15px;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h2>تعديل البيانات</h2>
+
+        <!-- الاسم -->
+        <div class="field">
+            <label>👤 الاسم الكامل</label>
+
+            <input
+                id="name"
+                type="text"
+                placeholder="الاسم الكامل">
+        </div>
+
+
+        <!-- الهاتف -->
+        <div class="field">
+            <label>📱 رقم الهاتف</label>
+
+            <input
+                id="phone"
+                type="tel"
+                placeholder="رقم الهاتف">
+        </div>
+
+
+        <!-- البريد -->
+        <div class="field">
+            <label>📧 البريد الإلكتروني</label>
+
+            <input
+                id="email"
+                type="email"
+                placeholder="البريد الإلكتروني">
+        </div>
+
+
+        <!-- تاريخ الميلاد -->
+        <div class="field">
+            <label>📅 تاريخ الميلاد</label>
+
+            <input
+                id="birthDate"
+                type="date">
+        </div>
+
+
+        <!-- اسم الأم -->
+        <div class="field">
+            <label>👩 اسم الأم</label>
+
+            <input
+                id="motherName"
+                type="text"
+                placeholder="اسم الأم">
+        </div>
+
+
+        <!-- الصورة -->
+        <div class="field">
+            <label>📷 الصورة الشخصية</label>
+
+            <input
+                id="photo"
+                type="file"
+                accept="image/*">
+        </div>
+
+
+        <!-- حفظ -->
+        <button
+            id="saveButton"
+            class="save">
+            💾 حفظ البيانات
+        </button>
+
+
+        <!-- العودة -->
+        <button
+            class="back"
+            id="backButton">
+            ⬅ العودة
+        </button>
+
+
+        <div
+            id="message"
+            class="message">
+        </div>
+
+    </div>
+
+
+    <script type="module">
+
+        import {
+            auth,
+            db,
+            onAuthStateChanged,
+            doc,
+            getDoc,
+            updateDoc
+        } from "./firebase.js";
+
+
+        /*
+        ==========================================
+        تحميل بيانات المستخدم
+        ==========================================
+        */
+
+        onAuthStateChanged(auth, async (user) => {
+
+            if (!user) {
+
+                window.location.href = "index.html";
+
+                return;
+            }
+
+
+            try {
+
+                const userRef = doc(
+                    db,
+                    "users",
+                    user.uid
+                );
+
+
+                const docSnap = await getDoc(userRef);
+
+
+                if (!docSnap.exists()) {
+
+                    showMessage(
+                        "لم يتم العثور على بيانات الحساب",
+                        true
+                    );
+
+                    return;
+                }
+
+
+                const data = docSnap.data();
+
+
+                /*
+                ==========================================
+                تعبئة البيانات الحالية
+                ==========================================
+                */
+
+                document.getElementById("name").value =
+                    data.fullName || "";
+
+
+                document.getElementById("phone").value =
+                    data.phone || "";
+
+
+                document.getElementById("email").value =
+                    data.email || "";
+
+
+                document.getElementById("birthDate").value =
+                    data.birthDate || "";
+
+
+                document.getElementById("motherName").value =
+                    data.motherName || "";
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                showMessage(
+                    "حدث خطأ أثناء تحميل البيانات",
+                    true
+                );
+
+            }
+
+        });
+
+
+        /*
+        ==========================================
+        زر حفظ البيانات
+        ==========================================
+        */
+
+        document
+            .getElementById("saveButton")
+            .addEventListener("click", saveData);
+
+
+        async function saveData() {
+
+            const user = auth.currentUser;
+
+
+            if (!user) {
+
+                showMessage(
+                    "يرجى تسجيل الدخول أولاً",
+                    true
+                );
+
+                return;
+            }
+
+
+            const saveButton =
+                document.getElementById("saveButton");
+
+
+            saveButton.classList.add("loading");
+
+            saveButton.innerText =
+                "⏳ جاري الحفظ...";
+
+
+            try {
+
+                /*
+                ==========================================
+                قراءة البيانات الجديدة
+                ==========================================
+                */
+
+                const fullName =
+                    document
+                        .getElementById("name")
+                        .value
+                        .trim();
+
+
+                const phone =
+                    document
+                        .getElementById("phone")
+                        .value
+                        .trim();
+
+
+                const email =
+                    document
+                        .getElementById("email")
+                        .value
+                        .trim();
+
+
+                const birthDate =
+                    document
+                        .getElementById("birthDate")
+                        .value;
+
+
+                const motherName =
+                    document
+                        .getElementById("motherName")
+                        .value
+                        .trim();
+
+
+                /*
+                ==========================================
+                البيانات التي سيتم تحديثها
+                ==========================================
+                */
+
+                const data = {
+
+                    fullName: fullName,
+
+                    phone: phone,
+
+                    email: email,
+
+                    birthDate: birthDate,
+
+                    motherName: motherName
+
+                };
+
+
+                /*
+                ==========================================
+                الصورة الشخصية
+                ==========================================
+                */
+
+                const file =
+                    document
+                        .getElementById("photo")
+                        .files[0];
+
+
+                if (file) {
+
+                    const reader =
+                        new FileReader();
+
+
+                    reader.onload = async function () {
+
+                        data.photo =
+                            reader.result;
+
+
+                        await updateUserData(
+                            user.uid,
+                            data
+                        );
+
+                    };
+
+
+                    reader.onerror = function () {
+
+                        showMessage(
+                            "حدث خطأ أثناء قراءة الصورة",
+                            true
+                        );
+
+                        resetSaveButton();
+
+                    };
+
+
+                    reader.readAsDataURL(file);
+
+                    return;
+                }
+
+
+                /*
+                ==========================================
+                تحديث البيانات بدون صورة
+                ==========================================
+                */
+
+                await updateUserData(
+                    user.uid,
+                    data
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Save Error:",
+                    error
+                );
+
+
+                showMessage(
+                    "حدث خطأ أثناء حفظ البيانات",
+                    true
+                );
+
+
+                resetSaveButton();
+
+            }
+
+        }
+
+
+        /*
+        ==========================================
+        تحديث Firestore
+        ==========================================
+        */
+
+        async function updateUserData(
+            uid,
+            data
+        ) {
+
+            const userRef =
+                doc(
+                    db,
+                    "users",
+                    uid
+                );
+
+
+            await updateDoc(
+                userRef,
+                data
+            );
+
+
+            showMessage(
+                "تم حفظ البيانات بنجاح ✅",
+                false
+            );
+
+
+            resetSaveButton();
+
+
+            /*
+            العودة إلى صفحة الملف بعد ثانية
+            */
+
+            setTimeout(() => {
+
+                window.location.href =
+                    "profile.html";
+
+            }, 1000);
+
+        }
+
+
+        /*
+        ==========================================
+        زر العودة
+        ==========================================
+        */
+
+        document
+            .getElementById("backButton")
+            .addEventListener("click", () => {
+
+                window.location.href =
+                    "profile.html";
+
+            });
+
+
+        /*
+        ==========================================
+        الرسائل
+        ==========================================
+        */
+
+        function showMessage(
+            text,
+            error = false
+        ) {
+
+            const message =
+                document.getElementById(
+                    "message"
+                );
+
+
+            message.innerText = text;
+
+
+            if (error) {
+
+                message.style.color =
+                    "#ff7675";
+
+            } else {
+
+                message.style.color =
+                    "#2ecc71";
+
+            }
+
+        }
+
+
+        /*
+        ==========================================
+        إعادة زر الحفظ
+        ==========================================
+        */
+
+        function resetSaveButton() {
+
+            const saveButton =
+                document.getElementById(
+                    "saveButton"
+                );
+
+
+            saveButton.classList.remove(
+                "loading"
+            );
+
+
+            saveButton.innerText =
+                "💾 حفظ البيانات";
+
+        }
+
+    </script>
+
+</body>
+
+</html>

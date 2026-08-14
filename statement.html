@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كشف الحساب | SAIF PAY</title>
+
+<style>
+
+body{
+margin:0;
+background:#0b1736;
+font-family:Tahoma;
+color:white;
+}
+
+.container{
+width:90%;
+max-width:900px;
+margin:30px auto;
+background:#16254d;
+padding:25px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+h2{
+text-align:center;
+margin-bottom:20px;
+color:#2ecc71;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th{
+background:#2ecc71;
+padding:15px;
+color:white;
+}
+
+td{
+background:#22386c;
+padding:15px;
+text-align:center;
+border-bottom:1px solid #314b82;
+}
+
+button{
+width:100%;
+padding:15px;
+margin-top:20px;
+background:#2ecc71;
+border:none;
+border-radius:10px;
+font-size:18px;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#27ae60;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📄 كشف الحساب</h2>
+
+<table>
+
+<thead>
+
+<tr>
+<th>التاريخ</th>
+<th>العملية</th>
+<th>الطرف الآخر</th>
+<th>المبلغ</th>
+</tr>
+
+</thead>
+
+<tbody id="statementTable">
+
+</tbody>
+
+</table>
+
+<button onclick="window.print()">
+🖨️ طباعة / حفظ PDF
+</button>
+
+<button onclick="window.location.href='dashboard.html'">
+🏠 العودة للرئيسية
+</button>
+
+</div>
+
+<script type="module">
+
+import {
+auth,
+db,
+onAuthStateChanged,
+collection,
+getDocs
+} from "./firebase.js";
+
+onAuthStateChanged(auth, async(user)=>{
+
+if(!user){
+location.href="index.html";
+return;
+}
+
+const tbody=document.getElementById("statementTable");
+tbody.innerHTML="";
+
+const snapshot=await getDocs(collection(db,"transactions"));
+
+const transactions=snapshot.docs
+.filter(docItem=>{
+const data=docItem.data();
+return data.from===user.uid || data.to===user.uid;
+})
+.sort((a,b)=>{
+const aTime=a.data().createdAt?.seconds||0;
+const bTime=b.data().createdAt?.seconds||0;
+return bTime-aTime;
+});
+
+if(transactions.length===0){
+
+tbody.innerHTML=`
+<tr>
+<td colspan="4">لا توجد عمليات حتى الآن.</td>
+</tr>
+`;
+
+return;
+
+}
+
+transactions.forEach(docItem=>{
+
+const data=docItem.data();
+
+const date=data.createdAt
+? data.createdAt.toDate().toLocaleString("ar-IQ")
+: "-";
+
+const type=data.from===user.uid
+? "📤 إرسال"
+: "📥 استلام";
+
+const otherName=data.from===user.uid
+? data.receiverName
+: data.senderName;
+
+tbody.innerHTML+=`
+<tr>
+<td>${date}</td>
+<td>${type}</td>
+<td>${otherName}</td>
+<td>$${data.amount}</td>
+</tr>
+`;
+
+});
+
+});
+
+</script>
+
+</body>
+</html>

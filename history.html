@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>سجل التحويلات | SAIF PAY</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Tahoma, Arial, sans-serif;
+}
+
+body{
+    background:#0b1736;
+    color:white;
+    padding:25px 15px 40px;
+    min-height:100vh;
+}
+
+.container{
+    max-width:750px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    font-size:30px;
+    margin:15px 0 25px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#b9c7e6;
+    margin-bottom:25px;
+    font-size:15px;
+}
+
+.card{
+    background:#16254d;
+    padding:20px;
+    border-radius:18px;
+    margin-top:16px;
+    box-shadow:0 5px 20px rgba(0,0,0,.25);
+    border-right:5px solid #2ecc71;
+}
+
+.card.incoming{
+    border-right-color:#00b0ff;
+}
+
+.card-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+.type{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.outgoing{
+    color:#ffb300;
+}
+
+.incoming-text{
+    color:#00e5ff;
+}
+
+.status{
+    background:rgba(46,204,113,.15);
+    color:#2ecc71;
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:13px;
+}
+
+.card p{
+    margin:9px 0;
+    line-height:1.7;
+    color:#e8edff;
+}
+
+.card p b{
+    color:white;
+}
+
+.amount{
+    font-size:27px;
+    font-weight:bold;
+    margin:14px 0;
+}
+
+.amount.out{
+    color:#ffb300;
+}
+
+.amount.in{
+    color:#00e676;
+}
+
+.balance-after{
+    background:#0d1b3d;
+    padding:12px;
+    border-radius:10px;
+    margin-top:12px;
+    color:#2ecc71;
+    font-size:17px;
+    font-weight:bold;
+}
+
+.transaction-id{
+    background:#0d1b3d;
+    padding:10px;
+    border-radius:8px;
+    margin-top:15px;
+    word-break:break-all;
+    font-size:13px;
+    color:#cbd6f5;
+}
+
+.empty{
+    background:#16254d;
+    padding:30px 20px;
+    border-radius:18px;
+    text-align:center;
+    color:#cbd6f5;
+    margin-top:20px;
+}
+
+.loading{
+    text-align:center;
+    color:#cbd6f5;
+    padding:30px;
+}
+
+button{
+    width:100%;
+    padding:16px;
+    margin-top:25px;
+    background:#2ecc71;
+    border:none;
+    border-radius:12px;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#27ae60;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>📄 سجل التحويلات</h1>
+
+    <div class="subtitle">
+        جميع التحويلات الصادرة والواردة
+    </div>
+
+    <div id="history">
+
+        <div class="loading">
+            ⏳ جاري تحميل سجل التحويلات...
+        </div>
+
+    </div>
+
+    <button onclick="location.href='dashboard.html'">
+        🏠 العودة للرئيسية
+    </button>
+
+</div>
+
+
+<script type="module">
+
+import {
+    auth,
+    db,
+    onAuthStateChanged,
+    collection,
+    query,
+    where,
+    getDocs,
+    doc,
+    getDoc
+} from "./firebase.js";
+
+
+onAuthStateChanged(auth, async (user) => {
+
+    if(!user){
+
+        window.location.href = "index.html";
+
+        return;
+    }
+
+
+    const container =
+        document.getElementById("history");
+
+
+    container.innerHTML = `
+        <div class="loading">
+            ⏳ جاري تحميل سجل التحويلات...
+        </div>
+    `;
+
+
+    try{
+
+        /*
+        ==========================================
+        تحميل بيانات المستخدم الحالية
+        ==========================================
+        */
+
+        const userRef =
+            doc(db,"users",user.uid);
+
+        const userSnapshot =
+            await getDoc(userRef);
+
+
+        if(!userSnapshot.exists()){
+
+            throw new Error(
+                "تعذر العثور على بيانات المستخدم"
+            );
+
+        }
+
+
+        const userData =
+            userSnapshot.data();
+
+
+        /*
+        ==========================================
+        الرصيد الحالي
+        ==========================================
+        */
+
+        let runningBalance =
+            Number(userData.balance || 0);
+
+
+        /*
+        ==========================================
+        التحويلات الصادرة
+        ==========================================
+        */
+
+        const outgoingQuery =
+            query(
+                collection(db,"transactions"),
+                where("from","==",user.uid)
+            );
+
+
+        /*
+        ==========================================
+        التحويلات الواردة
+        ==========================================
+        */
+
+        const incomingQuery =
+            query(
+                collection(db,"transactions"),
+                where("to","==",user.uid)
+            );
+
+
+        const [
+            outgoingSnapshot,
+            incomingSnapshot
+        ] =
+            await Promise.all([
+
+                getDocs(outgoingQuery),
+
+                getDocs(incomingQuery)
+
+            ]);
+
+
+        let transactions = [];
+
+
+        /*
+        ==========================================
+        إضافة الصادرة
+        ==========================================
+        */
+
+        outgoingSnapshot.docs.forEach(docu => {
+
+            transactions.push({
+
+                id:docu.id,
+
+                data:docu.data(),
+
+                type:"outgoing"
+
+            });
+
+        });
+
+
+        /*
+        ==========================================
+        إضافة الواردة
+        ==========================================
+        */
+
+        incomingSnapshot.docs.forEach(docu => {
+
+            if(
+                !transactions.some(
+                    t => t.id === docu.id
+                )
+            ){
+
+                transactions.push({
+
+                    id:docu.id,
+
+                    data:docu.data(),
+
+                    type:"incoming"
+
+                });
+
+            }
+
+        });
+
+
+        /*
+        ==========================================
+        لا توجد عمليات
+        ==========================================
+        */
+
+        if(transactions.length === 0){
+
+            container.innerHTML = `
+
+                <div class="empty">
+
+                    <div style="font-size:40px;">
+                        📭
+                    </div>
+
+                    <br>
+
+                    لا توجد تحويلات حتى الآن.
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        /*
+        ==========================================
+        ترتيب العمليات
+        الأحدث أولاً
+        ==========================================
+        */
+
+        transactions.sort((a,b) => {
+
+            const aSeconds =
+                a.data.createdAt?.seconds || 0;
+
+            const bSeconds =
+                b.data.createdAt?.seconds || 0;
+
+            return bSeconds - aSeconds;
+
+        });
+
+
+        /*
+        ==========================================
+        حساب الرصيد بعد كل عملية
+        ==========================================
+
+        نبدأ من الرصيد الحالي.
+
+        العملية الأحدث:
+        الرصيد بعد العملية = الرصيد الحالي.
+
+        ثم نرجع للخلف عملية عملية.
+        */
+
+        transactions.forEach(transaction => {
+
+            const data =
+                transaction.data;
+
+
+            const amount =
+                Number(data.amount || 0);
+
+
+            /*
+            الرصيد بعد هذه العملية
+            */
+
+            transaction.balanceAfter =
+                runningBalance;
+
+
+            /*
+            الرجوع للرصيد السابق
+            */
+
+            if(
+                transaction.type === "outgoing"
+            ){
+
+                runningBalance =
+                    runningBalance + amount;
+
+            }else{
+
+                runningBalance =
+                    runningBalance - amount;
+
+            }
+
+        });
+
+
+        /*
+        ==========================================
+        عرض العمليات
+        ==========================================
+        */
+
+        container.innerHTML = "";
+
+
+        transactions.forEach(transaction => {
+
+            const data =
+                transaction.data;
+
+
+            const isIncoming =
+                transaction.type === "incoming";
+
+
+            /*
+            التاريخ
+            */
+
+            let date = "-";
+
+
+            if(data.createdAt){
+
+                try{
+
+                    date =
+                        data.createdAt
+                        .toDate()
+                        .toLocaleString("ar-IQ");
+
+                }catch(error){
+
+                    date = "-";
+
+                }
+
+            }
+
+
+            /*
+            اسم الطرف الآخر
+            */
+
+            const otherName =
+                isIncoming
+
+                ? (
+                    data.senderName ||
+                    data.senderFullName ||
+                    data.fromName ||
+                    data.sender ||
+                    "غير معروف"
+                  )
+
+                : (
+                    data.receiverName ||
+                    data.receiverFullName ||
+                    data.toName ||
+                    data.receiver ||
+                    "غير معروف"
+                  );
+
+
+            /*
+            رقم الهاتف
+            */
+
+            const otherPhone =
+                isIncoming
+
+                ? (
+                    data.senderPhone ||
+                    data.fromPhone ||
+                    "-"
+                  )
+
+                : (
+                    data.receiverPhone ||
+                    data.toPhone ||
+                    "-"
+                  );
+
+
+            /*
+            المبلغ
+            */
+
+            const amount =
+                Number(data.amount || 0)
+                .toLocaleString(
+                    "en-US",
+                    {
+                        minimumFractionDigits:0,
+                        maximumFractionDigits:2
+                    }
+                );
+
+
+            /*
+            الرصيد بعد العملية
+            */
+
+            const balanceAfter =
+                Number(
+                    transaction.balanceAfter
+                ).toLocaleString(
+                    "en-US",
+                    {
+                        minimumFractionDigits:0,
+                        maximumFractionDigits:2
+                    }
+                );
+
+
+            /*
+            سبب التحويل
+            */
+
+            const reason =
+                data.reason || "-";
+
+
+            /*
+            رقم العملية
+            */
+
+            const transactionId =
+                data.transactionId ||
+                transaction.id;
+
+
+            /*
+            إنشاء البطاقة
+            */
+
+            const card =
+                document.createElement("div");
+
+
+            card.className =
+                "card " +
+                (
+                    isIncoming
+                    ? "incoming"
+                    : ""
+                );
+
+
+            if(isIncoming){
+
+                card.innerHTML = `
+
+                    <div class="card-header">
+
+                        <div class="type incoming-text">
+                            📥 حوالة واردة
+                        </div>
+
+                        <div class="status">
+                            مكتملة ✓
+                        </div>
+
+                    </div>
+
+
+                    <p>
+                        <b>👤 من:</b>
+                        ${otherName}
+                    </p>
+
+
+                    <p>
+                        <b>📱 رقم الهاتف:</b>
+                        ${otherPhone}
+                    </p>
+
+
+                    <div class="amount in">
+                        +${amount} $
+                    </div>
+
+
+                    <p>
+                        <b>📝 السبب:</b>
+                        ${reason}
+                    </p>
+
+
+                    <div class="balance-after">
+
+                        💳 الرصيد بعد العملية:
+                        ${balanceAfter} $
+
+                    </div>
+
+
+                    <p>
+                        <b>📅 التاريخ:</b>
+                        ${date}
+                    </p>
+
+
+                    <div class="transaction-id">
+
+                        <b>🆔 رقم العملية:</b><br>
+
+                        ${transactionId}
+
+                    </div>
+
+                `;
+
+            }else{
+
+                card.innerHTML = `
+
+                    <div class="card-header">
+
+                        <div class="type outgoing">
+                            📤 حوالة صادرة
+                        </div>
+
+                        <div class="status">
+                            مكتملة ✓
+                        </div>
+
+                    </div>
+
+
+                    <p>
+                        <b>👤 إلى:</b>
+                        ${otherName}
+                    </p>
+
+
+                    <p>
+                        <b>📱 رقم الهاتف:</b>
+                        ${otherPhone}
+                    </p>
+
+
+                    <div class="amount out">
+                        -${amount} $
+                    </div>
+
+
+                    <p>
+                        <b>📝 السبب:</b>
+                        ${reason}
+                    </p>
+
+
+                    <div class="balance-after">
+
+                        💳 الرصيد بعد العملية:
+                        ${balanceAfter} $
+
+                    </div>
+
+
+                    <p>
+                        <b>📅 التاريخ:</b>
+                        ${date}
+                    </p>
+
+
+                    <div class="transaction-id">
+
+                        <b>🆔 رقم العملية:</b><br>
+
+                        ${transactionId}
+
+                    </div>
+
+                `;
+
+            }
+
+
+            container.appendChild(card);
+
+        });
+
+
+    }catch(error){
+
+        console.error(
+            "History Error:",
+            error
+        );
+
+
+        container.innerHTML = `
+
+            <div class="empty">
+
+                ❌ حدث خطأ أثناء تحميل سجل التحويلات.
+
+                <br><br>
+
+                حاول تحديث الصفحة.
+
+            </div>
+
+        `;
+
+    }
+
+});
+
+</script>
+
+</body>
+
+</html>

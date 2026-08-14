@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SAIF PAY Dashboard</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Tahoma, Arial, sans-serif;
+}
+
+body{
+    background:#0d1b2a;
+    color:white;
+}
+
+.header{
+    background:#132238;
+    padding:20px;
+    font-size:28px;
+    font-weight:bold;
+    text-align:center;
+}
+
+.container{
+    padding:30px;
+    max-width:700px;
+    margin:auto;
+}
+
+.card{
+    background:#1b263b;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:20px;
+}
+
+.balance{
+    font-size:40px;
+    color:#00e676;
+    margin-top:10px;
+    font-weight:bold;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin-top:15px;
+    border:none;
+    border-radius:10px;
+    background:#00c853;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#00a844;
+}
+
+.transaction{
+    line-height:2;
+    font-size:16px;
+}
+
+.no-transaction{
+    opacity:.8;
+    margin-top:10px;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="header">
+    SAIF PAY
+</div>
+
+
+<div class="container">
+
+
+    <!-- اسم المستخدم -->
+
+    <div class="card">
+
+        مرحباً
+        <strong id="userName"></strong>
+        👋
+
+    </div>
+
+
+
+    <!-- الرصيد -->
+
+    <div class="card">
+
+        <div>
+            رصيدك الحالي
+        </div>
+
+        <div class="balance">
+            <span id="balance">$ 0</span>
+        </div>
+
+    </div>
+
+
+
+    <!-- آخر عملية -->
+
+    <div class="card">
+
+        <h3>📋 آخر عملية</h3>
+
+        <div id="lastTransaction" class="transaction">
+
+            جاري تحميل آخر عملية...
+
+        </div>
+
+    </div>
+
+
+
+    <!-- الأزرار -->
+
+    <button onclick="location.href='transfer.html'">
+        💸 تحويل الأموال
+    </button>
+
+
+    <button onclick="location.href='history.html'">
+        📄 كشف الحساب
+    </button>
+
+
+    <button onclick="location.href='received.html'">
+        📥 الحوالات الواردة
+    </button>
+
+
+    <button onclick="location.href='notifications.html'">
+        🔔 الإشعارات
+    </button>
+
+
+    <button onclick="location.href='profile.html'">
+        👤 الملف الشخصي
+    </button>
+
+
+    <button onclick="location.href='settings.html'">
+        ⚙️ الإعدادات
+    </button>
+
+
+</div>
+
+
+
+<script type="module">
+
+
+import {
+
+    auth,
+    db,
+    onAuthStateChanged,
+    doc,
+    getDoc,
+    collection,
+    query,
+    where,
+    getDocs
+
+} from "./firebase.js";
+
+
+
+/*
+====================================================
+    متابعة حالة تسجيل الدخول
+====================================================
+*/
+
+
+onAuthStateChanged(auth, async (user) => {
+
+
+    // إذا لم يكن المستخدم مسجلاً للدخول
+
+    if(!user){
+
+        location.href = "index.html";
+
+        return;
+
+    }
+
+
+
+    try{
+
+
+        /*
+        ====================================================
+            جلب بيانات المستخدم
+        ====================================================
+        */
+
+
+        const userRef = doc(
+            db,
+            "users",
+            user.uid
+        );
+
+
+        const userSnap = await getDoc(userRef);
+
+
+
+        if(!userSnap.exists()){
+
+            alert("لم يتم العثور على بيانات الحساب");
+
+            return;
+
+        }
+
+
+
+        const userData = userSnap.data();
+
+
+
+        /*
+        ====================================================
+            اسم المستخدم
+        ====================================================
+        */
+
+
+        document.getElementById("userName").textContent =
+            userData.fullName || "";
+
+
+
+        /*
+        ====================================================
+            الرصيد
+        ====================================================
+        */
+
+
+        const balance =
+            Number(userData.balance || 0);
+
+
+
+        document.getElementById("balance").textContent =
+            "$ " + balance.toLocaleString("en-US");
+
+
+
+        /*
+        ====================================================
+            جلب العمليات الصادرة
+        ====================================================
+        */
+
+
+        const sentQuery = query(
+
+            collection(db, "transactions"),
+
+            where(
+                "from",
+                "==",
+                user.uid
+            )
+
+        );
+
+
+
+        /*
+        ====================================================
+            جلب العمليات الواردة
+        ====================================================
+        */
+
+
+        const receivedQuery = query(
+
+            collection(db, "transactions"),
+
+            where(
+                "to",
+                "==",
+                user.uid
+            )
+
+        );
+
+
+
+        /*
+        ====================================================
+            تنفيذ الاستعلامين
+        ====================================================
+        */
+
+
+        const [
+            sentSnapshot,
+            receivedSnapshot
+        ] = await Promise.all([
+
+            getDocs(sentQuery),
+
+            getDocs(receivedQuery)
+
+        ]);
+
+
+
+        /*
+        ====================================================
+            تجميع جميع العمليات
+        ====================================================
+        */
+
+
+        const allTransactions = [];
+
+
+
+        sentSnapshot.forEach((transactionDoc) => {
+
+            allTransactions.push({
+
+                id: transactionDoc.id,
+
+                data: transactionDoc.data(),
+
+                direction: "sent"
+
+            });
+
+        });
+
+
+
+        receivedSnapshot.forEach((transactionDoc) => {
+
+            /*
+            منع تكرار العملية إذا كانت العملية
+            تحتوي على from و to لنفس المستخدم
+            */
+
+            const alreadyExists =
+                allTransactions.some(
+                    item => item.id === transactionDoc.id
+                );
+
+
+            if(!alreadyExists){
+
+                allTransactions.push({
+
+                    id: transactionDoc.id,
+
+                    data: transactionDoc.data(),
+
+                    direction: "received"
+
+                });
+
+            }
+
+        });
+
+
+
+        /*
+        ====================================================
+            ترتيب العمليات من الأحدث إلى الأقدم
+        ====================================================
+        */
+
+
+        allTransactions.sort((a,b) => {
+
+
+            const timeA =
+                a.data.createdAt?.seconds || 0;
+
+
+            const timeB =
+                b.data.createdAt?.seconds || 0;
+
+
+            return timeB - timeA;
+
+        });
+
+
+
+        /*
+        ====================================================
+            عرض آخر عملية
+        ====================================================
+        */
+
+
+        if(allTransactions.length > 0){
+
+
+            const lastTransaction =
+                allTransactions[0];
+
+
+            const last =
+                lastTransaction.data;
+
+
+
+            /*
+            ----------------------------------------------
+                التاريخ
+            ----------------------------------------------
+            */
+
+
+            let date = "-";
+
+
+            if(last.createdAt){
+
+                try{
+
+                    date =
+                        last.createdAt
+                        .toDate()
+                        .toLocaleString("ar-IQ");
+
+                }catch(error){
+
+                    date = "-";
+
+                }
+
+            }
+
+
+
+            /*
+            ----------------------------------------------
+                المبلغ
+            ----------------------------------------------
+            */
+
+
+            const amount =
+                Number(last.amount || 0);
+
+
+
+            /*
+            ----------------------------------------------
+                معرفة هل العملية واردة أم صادرة
+            ----------------------------------------------
+            */
+
+
+            const isReceived =
+                lastTransaction.direction === "received";
+
+
+
+            /*
+            ----------------------------------------------
+                اسم الطرف الآخر
+            ----------------------------------------------
+            */
+
+
+            let personName = "-";
+
+
+            if(isReceived){
+
+                personName =
+                    last.senderName ||
+                    last.fromName ||
+                    last.sender ||
+                    "غير معروف";
+
+            }else{
+
+                personName =
+                    last.receiverName ||
+                    last.toName ||
+                    last.receiver ||
+                    "غير معروف";
+
+            }
+
+
+
+            /*
+            ----------------------------------------------
+                عرض العملية
+            ----------------------------------------------
+            */
+
+
+            if(isReceived){
+
+                document.getElementById(
+                    "lastTransaction"
+                ).innerHTML = `
+
+                    <p>
+                        <b>📥 من:</b>
+                        ${personName}
+                    </p>
+
+                    <p>
+                        <b>💰 المبلغ:</b>
+                        ${amount}$
+                    </p>
+
+                    <p>
+                        <b>📅 التاريخ:</b>
+                        ${date}
+                    </p>
+
+                    <p>
+                        <b>🆔 رقم العملية:</b>
+                        ${last.transactionId || lastTransaction.id || "-"}
+                    </p>
+
+                `;
+
+            }else{
+
+                document.getElementById(
+                    "lastTransaction"
+                ).innerHTML = `
+
+                    <p>
+                        <b>📤 إلى:</b>
+                        ${personName}
+                    </p>
+
+                    <p>
+                        <b>💰 المبلغ:</b>
+                        ${amount}$
+                    </p>
+
+                    <p>
+                        <b>📅 التاريخ:</b>
+                        ${date}
+                    </p>
+
+                    <p>
+                        <b>🆔 رقم العملية:</b>
+                        ${last.transactionId || lastTransaction.id || "-"}
+                    </p>
+
+                `;
+
+            }
+
+
+
+        }else{
+
+
+            /*
+            لا توجد عمليات
+            */
+
+
+            document.getElementById(
+                "lastTransaction"
+            ).innerHTML = `
+
+                <p class="no-transaction">
+                    لا توجد عمليات حتى الآن.
+                </p>
+
+            `;
+
+        }
+
+
+
+    }catch(error){
+
+
+        console.error(
+            "Dashboard Error:",
+            error
+        );
+
+
+        document.getElementById(
+            "lastTransaction"
+        ).innerHTML = `
+
+            <p>
+                حدث خطأ أثناء تحميل العمليات.
+            </p>
+
+        `;
+
+    }
+
+
+});
+
+
+</script>
+
+
+</body>
+
+</html>
