@@ -2,613 +2,399 @@
 <html lang="ar" dir="rtl">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>تعديل البيانات - SAIF PAY</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
+<title>تعديل البيانات | SAIF PAY</title>
 
-        * {
-            box-sizing: border-box;
-        }
+<style>
 
-        body {
-            margin: 0;
-            padding: 0;
-            background: #0b1736;
-            font-family: Tahoma, Arial, sans-serif;
-            color: white;
-            min-height: 100vh;
-        }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Tahoma,Arial,sans-serif;
+}
 
-        .container {
-            width: 430px;
-            max-width: 92%;
-            margin: 35px auto;
-            background: #16254d;
-            padding: 25px;
-            border-radius: 22px;
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
-        }
+body{
+background:#0b1736;
+color:white;
+min-height:100vh;
+padding:30px 15px;
+}
 
-        h2 {
-            text-align: center;
-            margin: 0 0 25px;
-            font-size: 28px;
-            color: #ffd6a5;
-        }
+.container{
+width:100%;
+max-width:500px;
+margin:auto;
+background:#16254d;
+padding:25px;
+border-radius:20px;
+box-shadow:0 10px 35px rgba(0,0,0,.35);
+}
 
-        .field {
-            margin-bottom: 15px;
-        }
+h2{
+text-align:center;
+margin-bottom:25px;
+font-size:27px;
+color:#ffd6a5;
+}
 
-        label {
-            display: block;
-            margin-bottom: 7px;
-            font-size: 15px;
-            color: #ffffff;
-        }
+.field{
+margin-bottom:15px;
+}
 
-        input {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 11px;
-            font-size: 16px;
-            background: #ffffff;
-            color: #222;
-            outline: none;
-        }
+label{
+display:block;
+margin-bottom:7px;
+font-size:15px;
+}
 
-        input:focus {
-            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.25);
-        }
+input{
+width:100%;
+padding:14px;
+border:none;
+border-radius:11px;
+font-size:16px;
+background:white;
+color:#222;
+outline:none;
+}
 
-        input[type="file"] {
-            background: white;
-            padding: 10px;
-        }
+button{
+width:100%;
+padding:15px;
+margin-top:12px;
+border:none;
+border-radius:11px;
+color:white;
+font-size:17px;
+font-weight:bold;
+cursor:pointer;
+}
 
-        button {
-            width: 100%;
-            padding: 15px;
-            margin-top: 12px;
-            border: none;
-            border-radius: 11px;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+.save{
+background:#2ecc71;
+}
 
-        .save {
-            background: #2ecc71;
-        }
+.save:hover{
+background:#27ae60;
+}
 
-        .save:hover {
-            background: #27ae60;
-        }
+.back{
+background:#3498db;
+}
 
-        .back {
-            background: #3498db;
-        }
+.back:hover{
+background:#2980b9;
+}
 
-        .back:hover {
-            background: #2980b9;
-        }
+.message{
+text-align:center;
+margin-top:15px;
+min-height:24px;
+font-size:15px;
+}
 
-        .message {
-            text-align: center;
-            margin-top: 15px;
-            min-height: 24px;
-            font-size: 15px;
-        }
+</style>
 
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-    </style>
 </head>
 
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <h2>تعديل البيانات</h2>
+<h2>✏️ تعديل البيانات</h2>
 
-        <!-- الاسم -->
-        <div class="field">
-            <label>👤 الاسم الكامل</label>
+<div class="field">
 
-            <input
-                id="name"
-                type="text"
-                placeholder="الاسم الكامل">
-        </div>
+<label>
+👤 الاسم الكامل
+</label>
 
+<input
+id="name"
+type="text"
+placeholder="الاسم الكامل">
 
-        <!-- الهاتف -->
-        <div class="field">
-            <label>📱 رقم الهاتف</label>
+</div>
 
-            <input
-                id="phone"
-                type="tel"
-                placeholder="رقم الهاتف">
-        </div>
+<div class="field">
 
+<label>
+📅 تاريخ الميلاد
+</label>
 
-        <!-- البريد -->
-        <div class="field">
-            <label>📧 البريد الإلكتروني</label>
+<input
+id="birthDate"
+type="date">
 
-            <input
-                id="email"
-                type="email"
-                placeholder="البريد الإلكتروني">
-        </div>
+</div>
 
+<div class="field">
 
-        <!-- تاريخ الميلاد -->
-        <div class="field">
-            <label>📅 تاريخ الميلاد</label>
+<label>
+👩 اسم الأم
+</label>
 
-            <input
-                id="birthDate"
-                type="date">
-        </div>
+<input
+id="motherName"
+type="text"
+placeholder="اسم الأم">
 
+</div>
 
-        <!-- اسم الأم -->
-        <div class="field">
-            <label>👩 اسم الأم</label>
+<button
+id="saveButton"
+class="save">
 
-            <input
-                id="motherName"
-                type="text"
-                placeholder="اسم الأم">
-        </div>
+💾 حفظ البيانات
 
+</button>
 
-        <!-- الصورة -->
-        <div class="field">
-            <label>📷 الصورة الشخصية</label>
+<button
+id="backButton"
+class="back">
 
-            <input
-                id="photo"
-                type="file"
-                accept="image/*">
-        </div>
+⬅ العودة
 
+</button>
 
-        <!-- حفظ -->
-        <button
-            id="saveButton"
-            class="save">
-            💾 حفظ البيانات
-        </button>
+<div
+id="message"
+class="message">
+</div>
 
+</div>
 
-        <!-- العودة -->
-        <button
-            class="back"
-            id="backButton">
-            ⬅ العودة
-        </button>
+<script type="module">
 
+import {
+auth,
+db,
+onAuthStateChanged,
+doc,
+getDoc,
+updateDoc
+} from "./firebase.js";
 
-        <div
-            id="message"
-            class="message">
-        </div>
 
-    </div>
+onAuthStateChanged(auth, async (user)=>{
 
+if(!user){
 
-    <script type="module">
+window.location.href="index.html";
 
-        import {
-            auth,
-            db,
-            onAuthStateChanged,
-            doc,
-            getDoc,
-            updateDoc
-        } from "./firebase.js";
+return;
 
+}
 
-        /*
-        ==========================================
-        تحميل بيانات المستخدم
-        ==========================================
-        */
+try{
 
-        onAuthStateChanged(auth, async (user) => {
+const userRef =
+doc(db,"users",user.uid);
 
-            if (!user) {
+const userSnap =
+await getDoc(userRef);
 
-                window.location.href = "index.html";
+if(!userSnap.exists()){
 
-                return;
-            }
+showMessage(
+"لم يتم العثور على بيانات الحساب",
+true
+);
 
+return;
 
-            try {
+}
 
-                const userRef = doc(
-                    db,
-                    "users",
-                    user.uid
-                );
+const data =
+userSnap.data();
 
+document.getElementById("name").value =
+data.fullName || "";
 
-                const docSnap = await getDoc(userRef);
+document.getElementById("birthDate").value =
+data.birthDate || "";
 
+document.getElementById("motherName").value =
+data.motherName || "";
 
-                if (!docSnap.exists()) {
+}catch(error){
 
-                    showMessage(
-                        "لم يتم العثور على بيانات الحساب",
-                        true
-                    );
+console.error(
+"Load Error:",
+error
+);
 
-                    return;
-                }
+showMessage(
+"حدث خطأ أثناء تحميل البيانات",
+true
+);
 
+}
 
-                const data = docSnap.data();
+});
 
 
-                /*
-                ==========================================
-                تعبئة البيانات الحالية
-                ==========================================
-                */
+document
+.getElementById("saveButton")
+.addEventListener("click",saveData);
 
-                document.getElementById("name").value =
-                    data.fullName || "";
 
+async function saveData(){
 
-                document.getElementById("phone").value =
-                    data.phone || "";
+const user =
+auth.currentUser;
 
+if(!user){
 
-                document.getElementById("email").value =
-                    data.email || "";
+showMessage(
+"يرجى تسجيل الدخول أولاً",
+true
+);
 
+return;
 
-                document.getElementById("birthDate").value =
-                    data.birthDate || "";
+}
 
+const saveButton =
+document.getElementById("saveButton");
 
-                document.getElementById("motherName").value =
-                    data.motherName || "";
+saveButton.disabled = true;
 
+saveButton.innerText =
+"⏳ جاري الحفظ...";
 
-            } catch (error) {
 
-                console.error(error);
+try{
 
-                showMessage(
-                    "حدث خطأ أثناء تحميل البيانات",
-                    true
-                );
+const fullName =
+document
+.getElementById("name")
+.value
+.trim();
 
-            }
+const birthDate =
+document
+.getElementById("birthDate")
+.value;
 
-        });
+const motherName =
+document
+.getElementById("motherName")
+.value
+.trim();
 
 
-        /*
-        ==========================================
-        زر حفظ البيانات
-        ==========================================
-        */
+if(!fullName){
 
-        document
-            .getElementById("saveButton")
-            .addEventListener("click", saveData);
+showMessage(
+"يرجى إدخال الاسم الكامل",
+true
+);
 
+resetButton();
 
-        async function saveData() {
+return;
 
-            const user = auth.currentUser;
+}
 
 
-            if (!user) {
+await updateDoc(
 
-                showMessage(
-                    "يرجى تسجيل الدخول أولاً",
-                    true
-                );
+doc(
+db,
+"users",
+user.uid
+),
 
-                return;
-            }
+{
+fullName,
+birthDate,
+motherName
+}
 
+);
 
-            const saveButton =
-                document.getElementById("saveButton");
 
+showMessage(
+"تم حفظ البيانات بنجاح ✅",
+false
+);
 
-            saveButton.classList.add("loading");
 
-            saveButton.innerText =
-                "⏳ جاري الحفظ...";
+setTimeout(()=>{
 
+window.location.href =
+"profile.html";
 
-            try {
+},1000);
 
-                /*
-                ==========================================
-                قراءة البيانات الجديدة
-                ==========================================
-                */
 
-                const fullName =
-                    document
-                        .getElementById("name")
-                        .value
-                        .trim();
+}catch(error){
 
+console.error(
+"Save Error:",
+error
+);
 
-                const phone =
-                    document
-                        .getElementById("phone")
-                        .value
-                        .trim();
+showMessage(
+"حدث خطأ أثناء حفظ البيانات",
+true
+);
 
+resetButton();
 
-                const email =
-                    document
-                        .getElementById("email")
-                        .value
-                        .trim();
+}
 
+}
 
-                const birthDate =
-                    document
-                        .getElementById("birthDate")
-                        .value;
 
+document
+.getElementById("backButton")
+.addEventListener("click",()=>{
 
-                const motherName =
-                    document
-                        .getElementById("motherName")
-                        .value
-                        .trim();
+window.location.href =
+"profile.html";
 
+});
 
-                /*
-                ==========================================
-                البيانات التي سيتم تحديثها
-                ==========================================
-                */
 
-                const data = {
+function showMessage(
+text,
+error=false
+){
 
-                    fullName: fullName,
+const message =
+document.getElementById("message");
 
-                    phone: phone,
+message.innerText =
+text;
 
-                    email: email,
+message.style.color =
+error
+? "#ff7675"
+: "#2ecc71";
 
-                    birthDate: birthDate,
+}
 
-                    motherName: motherName
 
-                };
+function resetButton(){
 
+const saveButton =
+document.getElementById("saveButton");
 
-                /*
-                ==========================================
-                الصورة الشخصية
-                ==========================================
-                */
+saveButton.disabled =
+false;
 
-                const file =
-                    document
-                        .getElementById("photo")
-                        .files[0];
+saveButton.innerText =
+"💾 حفظ البيانات";
 
+}
 
-                if (file) {
-
-                    const reader =
-                        new FileReader();
-
-
-                    reader.onload = async function () {
-
-                        data.photo =
-                            reader.result;
-
-
-                        await updateUserData(
-                            user.uid,
-                            data
-                        );
-
-                    };
-
-
-                    reader.onerror = function () {
-
-                        showMessage(
-                            "حدث خطأ أثناء قراءة الصورة",
-                            true
-                        );
-
-                        resetSaveButton();
-
-                    };
-
-
-                    reader.readAsDataURL(file);
-
-                    return;
-                }
-
-
-                /*
-                ==========================================
-                تحديث البيانات بدون صورة
-                ==========================================
-                */
-
-                await updateUserData(
-                    user.uid,
-                    data
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "Save Error:",
-                    error
-                );
-
-
-                showMessage(
-                    "حدث خطأ أثناء حفظ البيانات",
-                    true
-                );
-
-
-                resetSaveButton();
-
-            }
-
-        }
-
-
-        /*
-        ==========================================
-        تحديث Firestore
-        ==========================================
-        */
-
-        async function updateUserData(
-            uid,
-            data
-        ) {
-
-            const userRef =
-                doc(
-                    db,
-                    "users",
-                    uid
-                );
-
-
-            await updateDoc(
-                userRef,
-                data
-            );
-
-
-            showMessage(
-                "تم حفظ البيانات بنجاح ✅",
-                false
-            );
-
-
-            resetSaveButton();
-
-
-            /*
-            العودة إلى صفحة الملف بعد ثانية
-            */
-
-            setTimeout(() => {
-
-                window.location.href =
-                    "profile.html";
-
-            }, 1000);
-
-        }
-
-
-        /*
-        ==========================================
-        زر العودة
-        ==========================================
-        */
-
-        document
-            .getElementById("backButton")
-            .addEventListener("click", () => {
-
-                window.location.href =
-                    "profile.html";
-
-            });
-
-
-        /*
-        ==========================================
-        الرسائل
-        ==========================================
-        */
-
-        function showMessage(
-            text,
-            error = false
-        ) {
-
-            const message =
-                document.getElementById(
-                    "message"
-                );
-
-
-            message.innerText = text;
-
-
-            if (error) {
-
-                message.style.color =
-                    "#ff7675";
-
-            } else {
-
-                message.style.color =
-                    "#2ecc71";
-
-            }
-
-        }
-
-
-        /*
-        ==========================================
-        إعادة زر الحفظ
-        ==========================================
-        */
-
-        function resetSaveButton() {
-
-            const saveButton =
-                document.getElementById(
-                    "saveButton"
-                );
-
-
-            saveButton.classList.remove(
-                "loading"
-            );
-
-
-            saveButton.innerText =
-                "💾 حفظ البيانات";
-
-        }
-
-    </script>
+</script>
 
 </body>
 

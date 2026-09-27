@@ -4,7 +4,6 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>إنشاء حساب جديد - SAIF PAY</title>
@@ -15,7 +14,7 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Tahoma;
+font-family:Tahoma,Arial,sans-serif;
 }
 
 body{
@@ -23,12 +22,14 @@ background:#0b1736;
 display:flex;
 justify-content:center;
 align-items:center;
-height:100vh;
+min-height:100vh;
+padding:20px;
 color:white;
 }
 
 .container{
-width:430px;
+width:100%;
+max-width:430px;
 background:#16254d;
 padding:30px;
 border-radius:20px;
@@ -43,7 +44,7 @@ margin-bottom:25px;
 input{
 width:100%;
 padding:15px;
-margin:10px 0;
+margin:8px 0;
 border:none;
 border-radius:10px;
 font-size:16px;
@@ -86,31 +87,42 @@ font-weight:bold;
 
 <h1>إنشاء حساب جديد</h1>
 
-<input type="text" id="fullname" placeholder="الاسم الكامل">
-
-<input type="text" id="mother" placeholder="اسم الأم">
-
-<input type="date" id="birth">
-
-<input type="text" id="phone" placeholder="رقم الهاتف">
-
-<input type="email" id="email" placeholder="البريد الإلكتروني">
-
-<input type="password" id="password" placeholder="كلمة المرور">
-
-<input type="password" id="confirm" placeholder="تأكيد كلمة المرور">
-<label>🔐 رقم PIN (6 أرقام)</label>
+<input
+type="text"
+id="fullname"
+placeholder="الاسم الكامل">
 
 <input
-id="pin"
+type="text"
+id="motherName"
+placeholder="اسم الأم">
+
+<input
+type="date"
+id="birthDate">
+
+<input
+type="text"
+id="phone"
+placeholder="رقم الهاتف">
+
+<input
+type="email"
+id="email"
+placeholder="البريد الإلكتروني">
+
+<input
 type="password"
-maxlength="6"
-placeholder="أدخل رقم PIN مكون من 6 أرقام">
+id="password"
+placeholder="كلمة المرور">
+
+<input
+type="password"
+id="confirm"
+placeholder="تأكيد كلمة المرور">
 
 <button onclick="register()">
-
 إنشاء الحساب
-
 </button>
 
 <p>
@@ -118,9 +130,7 @@ placeholder="أدخل رقم PIN مكون من 6 أرقام">
 لديك حساب؟
 
 <a href="index.html">
-
 تسجيل الدخول
-
 </a>
 
 </p>
@@ -135,94 +145,141 @@ db,
 createUserWithEmailAndPassword,
 doc,
 setDoc
-}
-from "./firebase.js";
+} from "./firebase.js";
+
 
 async function register(){
-const fullname = document.getElementById("fullname").value.trim();
-const mother = document.getElementById("mother").value.trim();
-const birth = document.getElementById("birth").value;
-const phone = document.getElementById("phone").value.trim();
-const email = document.getElementById("email").value.trim().toLowerCase();
-const password = document.getElementById("password").value;
-const pin = document.getElementById("pin").value.trim();
-const confirm = document.getElementById("confirm").value;
+
+const fullname =
+document.getElementById("fullname").value.trim();
+
+const motherName =
+document.getElementById("motherName").value.trim();
+
+const birthDate =
+document.getElementById("birthDate").value;
+
+const phone =
+document.getElementById("phone").value.trim();
+
+const email =
+document.getElementById("email").value.trim().toLowerCase();
+
+const password =
+document.getElementById("password").value;
+
+const confirm =
+document.getElementById("confirm").value;
+
 
 if(
-fullname==""||
-mother==""||
-birth==""||
-phone==""||
-email==""||
-password==""||
-pin==""
-)
-{
+!fullname ||
+!motherName ||
+!birthDate ||
+!phone ||
+!email ||
+!password ||
+!confirm
+){
+
 alert("يرجى ملء جميع الحقول");
+
 return;
+
 }
 
-if(password!==confirm){
-    alert("كلمتا المرور غير متطابقتين");
-    return;
+
+if(password !== confirm){
+
+alert("كلمتا المرور غير متطابقتين");
+
+return;
+
 }
 
-if(pin.length !== 6){
-    alert("يجب أن يتكون رقم PIN من 6 أرقام");
-    return;
+
+if(phone.length < 11){
+
+alert("رقم الهاتف غير صحيح");
+
+return;
+
 }
 
-if(phone.length<11){
-    alert("رقم الهاتف غير صحيح");
-    return;
-}
 
 try{
 
-const userCredential = await createUserWithEmailAndPassword(
+const userCredential =
+await createUserWithEmailAndPassword(
 auth,
 email,
 password
 );
 
-const uid = userCredential.user.uid;
+const uid =
+userCredential.user.uid;
+
 
 const accountNumber =
-"100"+Math.floor(10000000+Math.random()*90000000);
+"100" +
+Math.floor(
+10000000 + Math.random() * 90000000
+);
+
 
 const customerID =
-"CUST"+Math.floor(100000+Math.random()*900000);
+"CUST" +
+Math.floor(
+100000 + Math.random() * 900000
+);
 
-await setDoc(doc(db,"users",uid),{
 
-fullName:fullname,
-mother:mother,
-birth:birth,
-phone:phone,
-email:email,
-pin: pin,
+await setDoc(
+doc(db,"users",uid),
+{
 
-accountNumber:accountNumber,
-customerID:customerID,
+uid: uid,
 
-balance:25000,
+fullName: fullname,
 
-createdAt:new Date()
+motherName: motherName,
 
-});
+birthDate: birthDate,
+
+phone: phone,
+
+email: email,
+
+accountNumber: accountNumber,
+
+customerID: customerID,
+
+status: "active",
+
+createdAt: new Date()
+
+}
+);
+
 
 alert("تم إنشاء الحساب بنجاح");
 
-window.location.href="index.html";
+window.location.href = "index.html";
+
 
 }catch(error){
 
-alert(error.message);
+console.error("Registration Error:",error);
+
+alert("تعذر إنشاء الحساب. يرجى المحاولة مرة أخرى.");
 
 }
 
 }
+
+
 window.register = register;
+
 </script>
 
 </body>

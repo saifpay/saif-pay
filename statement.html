@@ -2,23 +2,32 @@
 <html lang="ar" dir="rtl">
 
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>كشف الحساب | SAIF PAY</title>
+
+<title>كشف العمليات | SAIF PAY</title>
 
 <style>
 
-body{
+*{
 margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Tahoma,Arial,sans-serif;
+}
+
+body{
 background:#0b1736;
-font-family:Tahoma;
 color:white;
+min-height:100vh;
+padding:25px 15px 40px;
 }
 
 .container{
-width:90%;
+width:100%;
 max-width:900px;
-margin:30px auto;
+margin:auto;
 background:#16254d;
 padding:25px;
 border-radius:20px;
@@ -39,15 +48,21 @@ margin-top:20px;
 
 th{
 background:#2ecc71;
-padding:15px;
+padding:14px;
 color:white;
 }
 
 td{
 background:#22386c;
-padding:15px;
+padding:14px;
 text-align:center;
 border-bottom:1px solid #314b82;
+}
+
+.empty{
+text-align:center;
+padding:25px;
+color:#cbd6f5;
 }
 
 button{
@@ -74,7 +89,7 @@ background:#27ae60;
 
 <div class="container">
 
-<h2>📄 كشف الحساب</h2>
+<h2>📄 كشف العمليات</h2>
 
 <table>
 
@@ -83,13 +98,19 @@ background:#27ae60;
 <tr>
 <th>التاريخ</th>
 <th>العملية</th>
-<th>الطرف الآخر</th>
-<th>المبلغ</th>
+<th>التفاصيل</th>
+<th>رقم العملية</th>
 </tr>
 
 </thead>
 
 <tbody id="statementTable">
+
+<tr>
+<td colspan="4">
+جاري تحميل العمليات...
+</td>
+</tr>
 
 </tbody>
 
@@ -112,74 +133,186 @@ auth,
 db,
 onAuthStateChanged,
 collection,
+query,
+where,
 getDocs
 } from "./firebase.js";
+
 
 onAuthStateChanged(auth, async(user)=>{
 
 if(!user){
+
 location.href="index.html";
+
 return;
+
 }
 
-const tbody=document.getElementById("statementTable");
-tbody.innerHTML="";
+const tbody =
+document.getElementById("statementTable");
 
-const snapshot=await getDocs(collection(db,"transactions"));
+try{
 
-const transactions=snapshot.docs
-.filter(docItem=>{
-const data=docItem.data();
-return data.from===user.uid || data.to===user.uid;
-})
-.sort((a,b)=>{
-const aTime=a.data().createdAt?.seconds||0;
-const bTime=b.data().createdAt?.seconds||0;
+const transactionsQuery =
+query(
+collection(db,"transactions"),
+where("userId","==",user.uid)
+);
+
+const snapshot =
+await getDocs(transactionsQuery);
+
+
+const transactions =
+snapshot.docs.sort((a,b)=>{
+
+const aTime =
+a.data().createdAt?.seconds || 0;
+
+const bTime =
+b.data().createdAt?.seconds || 0;
+
 return bTime-aTime;
+
 });
 
-if(transactions.length===0){
 
-tbody.innerHTML=`
+if(transactions.length === 0){
+
+tbody.innerHTML = `
+
 <tr>
-<td colspan="4">لا توجد عمليات حتى الآن.</td>
+
+<td colspan="4" class="empty">
+
+لا توجد عمليات حتى الآن.
+
+</td>
+
 </tr>
+
 `;
 
 return;
 
 }
 
-transactions.forEach(docItem=>{
 
-const data=docItem.data();
+tbody.innerHTML = "";
 
-const date=data.createdAt
-? data.createdAt.toDate().toLocaleString("ar-IQ")
-: "-";
 
-const type=data.from===user.uid
-? "📤 إرسال"
-: "📥 استلام";
+transactions.forEach(transactionDoc=>{
 
-const otherName=data.from===user.uid
-? data.receiverName
-: data.senderName;
+const data =
+transactionDoc.data();
 
-tbody.innerHTML+=`
-<tr>
-<td>${date}</td>
-<td>${type}</td>
-<td>${otherName}</td>
-<td>$${data.amount}</td>
-</tr>
+
+let date = "-";
+
+
+if(data.createdAt){
+
+try{
+
+date =
+data.createdAt
+.toDate()
+.toLocaleString("ar-IQ");
+
+}catch(error){
+
+date = "-";
+
+}
+
+}
+
+
+const title =
+data.title ||
+"عملية SAIF PAY";
+
+
+const description =
+data.description ||
+"-";
+
+
+const transactionId =
+data.transactionId ||
+transactionDoc.id;
+
+
+const row =
+document.createElement("tr");
+
+
+row.innerHTML = `
+
+<td>
+${escapeHTML(date)}
+</td>
+
+<td>
+${escapeHTML(title)}
+</td>
+
+<td>
+${escapeHTML(description)}
+</td>
+
+<td>
+${escapeHTML(transactionId)}
+</td>
+
 `;
 
-});
+
+tbody.appendChild(row);
 
 });
+
+
+}catch(error){
+
+console.error(
+"Statement Error:",
+error
+);
+
+tbody.innerHTML = `
+
+<tr>
+
+<td colspan="4" class="empty">
+
+❌ حدث خطأ أثناء تحميل كشف العمليات.
+
+</td>
+
+</tr>
+
+`;
+
+}
+
+});
+
+
+function escapeHTML(value){
+
+return String(value)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
 
 </script>
 
 </body>
+
 </html>

@@ -11,102 +11,79 @@
 <style>
 
 *{
-    box-sizing:border-box;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Tahoma,Arial,sans-serif;
 }
 
 body{
-    margin:0;
-    font-family:Tahoma,Arial,sans-serif;
-    background:#0b1736;
-    color:white;
-    min-height:100vh;
+background:#0b1736;
+color:white;
+min-height:100vh;
+padding:30px 15px;
 }
 
 .container{
-    width:90%;
-    max-width:500px;
-    margin:40px auto;
-    background:#16254d;
-    padding:30px;
-    border-radius:20px;
-    text-align:center;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);
+width:100%;
+max-width:500px;
+margin:auto;
+background:#16254d;
+padding:25px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.35);
 }
 
-.profile-image{
-    width:130px;
-    height:130px;
-    border-radius:50%;
-    border:4px solid #2ecc71;
-    margin-bottom:20px;
-    object-fit:cover;
-    background:#22386c;
-}
-
-h2{
-    margin:0 0 25px;
-    font-size:25px;
-    color:white;
+.header{
+text-align:center;
+font-size:26px;
+font-weight:bold;
+margin-bottom:25px;
 }
 
 .info{
-    background:#22386c;
-    padding:15px;
-    border-radius:12px;
-    margin-top:10px;
-    text-align:right;
-    word-break:break-word;
-    line-height:1.7;
+background:#22386c;
+padding:15px;
+border-radius:12px;
+margin-top:10px;
+line-height:1.7;
+word-break:break-word;
 }
 
 .info b{
-    color:#2ecc71;
+color:#2ecc71;
 }
 
 .status{
-    color:#2ecc71;
-    font-weight:bold;
-}
-
-.balance{
-    font-size:28px;
-    color:#2ecc71;
-    margin-top:10px;
-    font-weight:bold;
-    direction:ltr;
+color:#2ecc71;
+font-weight:bold;
 }
 
 button{
-    width:100%;
-    padding:15px;
-    margin-top:15px;
-    border:none;
-    border-radius:10px;
-    background:#2ecc71;
-    color:white;
-    font-size:18px;
-    cursor:pointer;
+width:100%;
+padding:15px;
+margin-top:15px;
+border:none;
+border-radius:10px;
+background:#2ecc71;
+color:white;
+font-size:17px;
+cursor:pointer;
 }
 
 button:hover{
-    background:#27ae60;
-}
-
-.logout{
-    background:#e74c3c;
-}
-
-.logout:hover{
-    background:#c0392b;
+background:#27ae60;
 }
 
 .loading{
-    color:#ffd6a5;
+text-align:center;
+color:#ffd6a5;
 }
 
 .error{
-    color:#ff7675;
-    font-weight:bold;
+text-align:center;
+color:#ff7675;
+font-weight:bold;
 }
 
 </style>
@@ -117,252 +94,137 @@ button:hover{
 
 <div class="container">
 
-    <img
-        id="profileImage"
-        class="profile-image"
-        src="https://i.pravatar.cc/150"
-        alt="Profile"
-    >
-
-    <h2 id="userName" class="loading">
-        جاري تحميل البيانات...
-    </h2>
-
-    <div class="info">
-        <b>رقم الحساب:</b>
-        <span id="accountNumber">-</span>
-    </div>
-
-    <div class="info">
-        <b>رقم العميل:</b>
-        <span id="customerID">-</span>
-    </div>
-
-    <div class="info">
-        <b>حالة الحساب:</b>
-        <span class="status">نشط ✅</span>
-    </div>
-
-    <div class="info">
-        <b>رقم الهاتف:</b>
-        <span id="userPhone">-</span>
-    </div>
-
-    <div class="info">
-        <b>البريد الإلكتروني:</b>
-        <br>
-        <span id="userEmail">-</span>
-    </div>
-
-    <div class="info">
-        <b>تاريخ الميلاد:</b>
-        <br>
-        <span id="birthDate">-</span>
-    </div>
-
-    <div class="info">
-        <b>اسم الأم:</b>
-        <br>
-        <span id="motherName">-</span>
-    </div>
-
-    <div class="info">
-
-        <b>الرصيد الحالي:</b>
-
-        <div id="balance" class="balance">
-            $ 0
-        </div>
-
-    </div>
-
-    <!-- تعديل البيانات -->
-
-    <button onclick="location.href='edit-profile.html'">
-        ✏️ تعديل البيانات
-    </button>
-
-    <!-- الإعدادات -->
-
-    <button onclick="location.href='settings.html'">
-        ⚙️ الإعدادات
-    </button>
-
-    <!-- تغيير كلمة المرور -->
-
-    <button onclick="location.href='change-password.html'">
-        🔐 تغيير كلمة المرور
-    </button>
-
-    <!-- العودة للرئيسية -->
-
-    <button onclick="location.href='dashboard.html'">
-        🏠 العودة للرئيسية
-    </button>
-
-    <!-- تسجيل الخروج -->
-
-    <button class="logout" onclick="logout()">
-        🚪 تسجيل الخروج
-    </button>
-
+<div class="header">
+👤 الملف الشخصي
 </div>
 
+<h2 id="userName" class="loading">
+جاري تحميل البيانات...
+</h2>
+
+<div class="info">
+<b>رقم الحساب:</b>
+<span id="accountNumber">-</span>
+</div>
+
+<div class="info">
+<b>رقم العميل:</b>
+<span id="customerID">-</span>
+</div>
+
+<div class="info">
+<b>حالة الحساب:</b>
+<span class="status">نشط ✅</span>
+</div>
+
+<div class="info">
+<b>رقم الهاتف:</b>
+<span id="userPhone">-</span>
+</div>
+
+<div class="info">
+<b>البريد الإلكتروني:</b>
+<span id="userEmail">-</span>
+</div>
+
+<div class="info">
+<b>تاريخ الميلاد:</b>
+<span id="birthDate">-</span>
+</div>
+
+<div class="info">
+<b>اسم الأم:</b>
+<span id="motherName">-</span>
+</div>
+
+<button onclick="location.href='edit-profile.html'">
+✏️ تعديل البيانات
+</button>
+
+<button onclick="location.href='dashboard.html'">
+🏠 العودة للرئيسية
+</button>
+
+</div>
 
 <script type="module">
 
 import {
-    auth,
-    db,
-    onAuthStateChanged,
-    signOut,
-    doc,
-    getDoc
+auth,
+db,
+onAuthStateChanged,
+doc,
+getDoc
 } from "./firebase.js";
-
 
 onAuthStateChanged(auth, async (user) => {
 
-    console.log("المستخدم الحالي:", user);
+if(!user){
 
-    if(!user){
+location.href="index.html";
+return;
 
-        location.href = "index.html";
+}
 
-        return;
-    }
+try{
 
+const userRef =
+doc(db,"users",user.uid);
 
-    try{
+const userSnap =
+await getDoc(userRef);
 
-        const userRef = doc(db, "users", user.uid);
+if(!userSnap.exists()){
 
-        console.log("جاري قراءة بيانات المستخدم:", user.uid);
+document.getElementById("userName").textContent =
+"لم يتم العثور على بيانات الحساب";
 
-        const docSnap = await getDoc(userRef);
+document.getElementById("userName").className =
+"error";
 
+return;
 
-        if(!docSnap.exists()){
+}
 
-            console.error("لم يتم العثور على وثيقة المستخدم");
+const data =
+userSnap.data();
 
-            document.getElementById("userName").textContent =
-                "لم يتم العثور على بيانات الحساب";
+document.getElementById("userName").textContent =
+data.fullName || "-";
 
-            document.getElementById("userName").className =
-                "error";
+document.getElementById("accountNumber").textContent =
+data.accountNumber || "-";
 
-            return;
-        }
+document.getElementById("customerID").textContent =
+data.customerID || "-";
 
+document.getElementById("userPhone").textContent =
+data.phone || "-";
 
-        const data = docSnap.data();
+document.getElementById("userEmail").textContent =
+data.email || user.email || "-";
 
-        console.log("بيانات المستخدم:", data);
+document.getElementById("birthDate").textContent =
+data.birthDate || "-";
 
+document.getElementById("motherName").textContent =
+data.motherName || "-";
 
-        /* الاسم */
+document.getElementById("userName").className = "";
 
-        document.getElementById("userName").textContent =
-            data.fullName || "-";
+}catch(error){
 
+console.error("Profile Error:",error);
 
-        /* رقم الهاتف */
+document.getElementById("userName").textContent =
+"حدث خطأ أثناء تحميل البيانات";
 
-        document.getElementById("userPhone").textContent =
-            data.phone || "-";
+document.getElementById("userName").className =
+"error";
 
-
-        /* البريد الإلكتروني */
-
-        document.getElementById("userEmail").textContent =
-            data.email || user.email || "-";
-
-
-        /* رقم الحساب */
-
-        document.getElementById("accountNumber").textContent =
-            data.accountNumber || "-";
-
-
-        /* رقم العميل */
-
-        document.getElementById("customerID").textContent =
-            data.customerID || "-";
-
-
-        /* تاريخ الميلاد */
-
-        document.getElementById("birthDate").textContent =
-            data.birthDate || "-";
-
-
-        /* اسم الأم */
-
-        document.getElementById("motherName").textContent =
-            data.motherName || "-";
-
-
-        /* الرصيد */
-
-        const balance =
-            Number(data.balance || 0);
-
-        document.getElementById("balance").textContent =
-            "$ " + balance.toLocaleString("en-US");
-
-
-        /* الصورة الشخصية */
-
-        if(data.photo){
-
-            document.getElementById("profileImage").src =
-                data.photo;
-
-        }
-
-
-        /* إزالة حالة التحميل */
-
-        document.getElementById("userName").className = "";
-
-
-    }catch(error){
-
-        console.error("خطأ في تحميل بيانات الحساب:", error);
-
-        document.getElementById("userName").textContent =
-            "حدث خطأ أثناء تحميل البيانات";
-
-        document.getElementById("userName").className =
-            "error";
-
-    }
+}
 
 });
-
-
-/* تسجيل الخروج */
-
-window.logout = async function(){
-
-    try{
-
-        await signOut(auth);
-
-        alert("تم تسجيل الخروج بنجاح");
-
-        location.href = "index.html";
-
-    }catch(error){
-
-        console.error(error);
-
-        alert("حدث خطأ أثناء تسجيل الخروج");
-
-    }
-
-};
 
 </script>
 
